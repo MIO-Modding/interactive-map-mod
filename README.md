@@ -18,3 +18,4 @@ Wait about two minutes for the map itself to install. (to check if it worked, th
 
 Once installed, you can toggle it in-game by pressing CTRL+M. This doesn't work on the main menu.
 
+**Notice:** Currently only works on windows.
