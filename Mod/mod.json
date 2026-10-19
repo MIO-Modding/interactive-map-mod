@@ -1,0 +1,8 @@
+{
+    "id": "io.github.mio-modding.interactive-map-mod",
+    "name": "Interactive Map Mio Mod",
+    "main": "InteractiveMapMod.dll",
+    "dependencies": [
+        "io.github.mio-modding.mio-modding-api"
+    ]
+}
