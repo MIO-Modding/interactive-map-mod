@@ -175,7 +175,7 @@ namespace InteractiveMapMod
         public static readonly IntPtr HWND_TOP_NO_FLAG = new IntPtr(-2);
 
 
-        private static Process? GetMapProcess()
+        private Process? GetMapProcess()
         {
             try
             {
@@ -332,7 +332,7 @@ namespace InteractiveMapMod
         }
 
 
-        private static bool AcceptingInput()
+        private bool AcceptingInput()
         {
             IntPtr current = GetForegroundWindow();
             return current == Process.GetCurrentProcess().MainWindowHandle || current == GetMapProcess().MainWindowHandle;
