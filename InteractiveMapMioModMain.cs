@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using static On.MioGame.On_Stream;
 
 namespace InteractiveMapMod
 {
@@ -259,21 +260,23 @@ namespace InteractiveMapMod
             try { dataString = System.Text.Encoding.UTF8.GetString(await requester.GetByteArrayAsync(MAP_RELEASES)); }
             catch (Exception ex) { LogMessage("Could not request release data: " + ex); }
 
-            Dictionary<string, dynamic>[] data = { };
+            Dictionary<string, dynamic>[]? data = { };
             try
             {
                 data = JsonSerializer.Deserialize<Dictionary<string, dynamic>[]>(dataString);
             }
             catch (Exception ex) { LogMessage("Could not parse release data: " + ex); }
 
-            try
+            if (data != null)
             {
-                Dictionary<string, dynamic> latestReleaseData = data[0];
-                mapLatestRelease = latestReleaseData["html_url"].GetString().Split("/tag/")[1];
+                try
+                {
+                    Dictionary<string, dynamic> latestReleaseData = data[0];
+                    mapLatestRelease = latestReleaseData["html_url"].GetString().Split("/tag/")[1];
+                }
+                catch (Exception ex) { LogMessage("Could not get tag from release data: " + ex); }
+                //LogMessage("Latest release: " + mapLatestRelease);
             }
-            catch (Exception ex) { LogMessage("Could not get tag from release data: " + ex); }
-            //LogMessage("Latest release: " + mapLatestRelease);
-
 
             if (!MapInstalled(true)) await InstallMap();
         }
@@ -324,7 +327,9 @@ namespace InteractiveMapMod
                 if (mustMatchVersion)
                 {
                     Debug.Assert(System.IO.File.Exists(MAP_PATH));
-                    return System.Diagnostics.FileVersionInfo.GetVersionInfo(MAP_PATH).FileVersion[..^2] == mapLatestRelease;
+                    string? version = System.Diagnostics.FileVersionInfo.GetVersionInfo(MAP_PATH).FileVersion;
+                    if (version == null) return false;
+                    return version[..^2] == mapLatestRelease;
                 }
                 return true;
             }
@@ -335,7 +340,14 @@ namespace InteractiveMapMod
         private bool AcceptingInput()
         {
             IntPtr current = GetForegroundWindow();
-            return current == Process.GetCurrentProcess().MainWindowHandle || current == GetMapProcess().MainWindowHandle;
+            Process? mapProcess = GetMapProcess();
+            if (mapProcess == null) return IsWindowSelf(current);
+            return IsWindowSelf(current) || current == mapProcess.MainWindowHandle;
+        }
+
+        private bool IsWindowSelf(IntPtr handle)
+        {
+            return handle == Process.GetCurrentProcess().MainWindowHandle;
         }
     }
 }
